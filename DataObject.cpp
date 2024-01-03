@@ -158,7 +158,64 @@ size_t DataObjectCollection::getObjectCount() {
   return objects.size();
 }
 
+DataObject* DataObjectCollection::storeStruct(DataObjectStructure* structure) {
+  // Create the object
+  DataObject* object = createObject();
+
+  // Populate the object with the structure
+  structure->populateObject(object);
+
+  // Save the database
+  save();
+
+  return object;
+}
+
+DataObject* DataObjectCollection::saveStruct(DataObjectStructure* structure) {
+  // Find the object containing the structure
+  DataObject* object = getObject(structure->getObjectId());
+
+  // Object doesn't exist
+  if (object == nullptr) {
+    return nullptr;
+  }
+
+  // Clear the existing object data
+  object->clear();
+
+  // Populate the object with the structure data
+  structure->populateObject(object);
+
+  // Save the database
+  save();
+
+  return object;
+}
+
+DataObject* DataObjectCollection::loadStruct(DataObjectStructure* structure) {
+  // Find the object containing the structure
+  DataObject* object = getObject(structure->getObjectId());
+
+  // Object doesn't exist
+  if (object == nullptr) {
+    return nullptr;
+  }
+
+  // Populate the structure from the object
+  structure->fromObject(object);
+
+  return object;
+}
+
 DataObject::DataObject() : id(0), entries{} {}
+
+uint32_t DataObject::getId() const {
+  return id;
+}
+
+void DataObject::clear() {
+  entries.clear();
+}
 
 void DataObject::setEntry(string key, DataValue value) {
   entries[key] = value;

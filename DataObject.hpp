@@ -154,6 +154,12 @@ class DataObject {
   DataObject();
 
   /// <summary>
+  /// Provides the ID of this object
+  /// </summary>
+  /// <returns>The object ID</returns>
+  uint32_t getId() const;
+
+  /// <summary>
   /// Sets the entry at the provided key to the provided
   /// value
   /// </summary>
@@ -168,7 +174,42 @@ class DataObject {
   /// <param name="key">The entry key</param>
   DataValue* getEntry(string key);
 
+  /// <summary>
+  /// Clears the contents of the object
+  /// </summary>
+  void clear();
+
   friend class DataObjectCollection;
+};
+
+/// <summary>
+/// Abstract class implemented by structures that can be
+/// serialized and deserialized as DataObjects
+/// </summary>
+class DataObjectStructure {
+ public:
+  virtual ~DataObjectStructure() {}
+
+  /// <summary>
+  /// Provides the object ID for this structure if it was loaded
+  /// from an existing object.
+  ///
+  /// Should be zero when storing the structure for the first time
+  /// </summary>
+  virtual uint32_t getObjectId() = 0;
+
+  /// <summary>
+  /// Populates the provided object with the values from this
+  /// structure
+  /// </summary>
+  /// <param name="object">The object to populate</param>
+  virtual void populateObject(DataObject* object) = 0;
+
+  /// <summary>
+  /// Creates this structure from the provided obejct
+  /// </summary>
+  /// <param name="object">The object to create from</param>
+  virtual void fromObject(DataObject* object) = 0;
 };
 
 /// <summary>
@@ -264,6 +305,31 @@ class DataObjectCollection {
   /// </summary>
   /// <returns>The newly allocated object</returns>
   DataObject* createObject();
+
+  /// <summary>
+  /// Stores the provided structure in object form within the collection.
+  ///
+  /// Saves the object collection automatically
+  /// </summary>
+  /// <returns>The object that was created and saved</returns>
+  DataObject* storeStruct(DataObjectStructure* structure);
+
+  /// <summary>
+  /// Saves an existing data object structure back to the database with
+  /// its new changes
+  ///
+  /// Saves the object collection automatically
+  /// </summary>
+  /// <returns>The underlying data object loaded from or nullptr if
+  /// none</returns>
+  DataObject* saveStruct(DataObjectStructure* structure);
+
+  /// <summary>
+  /// Loads an existing structure from the databse
+  /// </summary>
+  /// <returns>The underlying data object loaded from or nullptr if
+  /// none</returns>
+  DataObject* loadStruct(DataObjectStructure* structure);
 };
 
 #endif
